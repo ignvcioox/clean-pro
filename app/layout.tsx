@@ -1,42 +1,41 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-
+import { Toaster } from 'sonner';
 import './globals.css';
 
-import { Toaster } from 'sonner';
-import { ThemeProvider, Providers } from '@/src/providers';
+import { Providers } from '@/providers/providers';
+import { ThemeProvider } from '@/providers/theme-provider';
 
 const inter = Inter({
-   subsets: ['latin'],
+  subsets: ['latin'],
+  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
-   title: {
-      default: "Clean Pro - Detailing Automotriz",
-      template: "%s | Clean Pro",
-   },
-   description: "La plataforma definitiva para la gestión y servicios de detailing automotriz profesional.",
-   keywords: ["detailing", "automotriz", "limpieza de autos", "estética vehicular", "Clean Pro", "servicio de detailing"],
-   authors: [{ name: "Benjamín López" }],
-   creator: "Benjamín López",
+  title: 'Clean Pro - Detailing Automotriz',
+  description:
+    'La plataforma definitiva para la gestión y servicios de detailing automotriz profesional.',
+  creator: 'Benjamín López',
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-   return (
-      <html lang="en" suppressHydrationWarning>
-         <body className={inter.className}>
-            <Providers>
-               <ThemeProvider
-                  attribute="class"
-                  defaultTheme="system"
-                  enableSystem
-                  disableTransitionOnChange
-               >
-                  {children}
-               </ThemeProvider>
-            </Providers>
-            <Toaster position="top-right" richColors duration={1500} />
-         </body>
-      </html>
-   );
-};
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <Providers>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </Providers>
+        <Toaster position="top-right" richColors duration={1500} />
+      </body>
+    </html>
+  );
+}

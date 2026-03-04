@@ -1,0 +1,20 @@
+import z from 'zod';
+
+// Schema de validación para el formulario de registro de usuario
+export const registerUserSchema = z.object({
+  fullName: z
+    .string()
+    .min(3, 'Mínimo 3 caracteres')
+    .max(50, 'Máximo 50 caracteres'),
+  email: z.string().pipe(z.email('El correo electrónico no es válido')),
+  password: z
+    .string()
+    .min(6, 'La contraseña debe tener al menos 6 caracteres')
+    .max(50, 'La contraseña no debe exceder los 50 caracteres')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[^\s]+$/,
+      'Debe tener mayúscula, minúscula, número y símbolo.',
+    ),
+});
+
+export type RegisterUserFormValues = z.infer<typeof registerUserSchema>;

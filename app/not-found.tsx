@@ -1,5 +1,5 @@
-import { NotFound } from '@/modules/shared/components/NotFound';
+import { NotFound } from '@/modules/shared/components/not-found';
 
 export default function NotFoundPage() {
-   return <NotFound />
-};
+  return <NotFound />;
+}

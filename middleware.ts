@@ -1,55 +1,51 @@
-/* import { NextResponse, type NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-const AUTH_PAGES            = ['/auth/sign-in', '/auth/sign-up'];
-const DEFAULT_AUTH_REDIRECT = '/';
-const HOME_URL              = '/';
+const PUBLIC_ROUTES = ['/'];
+
+const AUTH_PAGES = [
+  '/auth/sign-in',
+  '/auth/sign-up',
+  '/auth/forgot-password',
+  '/auth/verify-email',
+  '/auth/recovery-password',
+];
+
+const PROTECTED_ROUTES = ['/auth/account/*'];
 
 export function middleware(request: NextRequest) {
-   
-   const pathname = request.nextUrl.pathname;
-   const token    = request.cookies.get('auth_token')?.value;
+  const pathname = request.nextUrl.pathname;
+  const token = request.cookies.get('access_token')?.value;
 
-   if (AUTH_PAGES.includes(pathname) && token) {
-      const url = new URL(HOME_URL, request.url);
-      return NextResponse.redirect(url);
-   }
+  const isAccountRoute = pathname.startsWith('/auth/account');
+  const isDashboardRoute = pathname.startsWith('/dashboard');
 
-   if (pathname.startsWith('/auth/') && !AUTH_PAGES.includes(pathname) && !token) {
-      const url = new URL(DEFAULT_AUTH_REDIRECT, request.url);
-      return NextResponse.redirect(url);
-   }
+  const isProtectedRoute =
+    PROTECTED_ROUTES.includes(pathname) || isAccountRoute || isDashboardRoute;
 
-   return NextResponse.next();
+  if (token && AUTH_PAGES.includes(pathname)) {
+    return NextResponse.redirect(new URL(PUBLIC_ROUTES[0], request.url));
+  }
+
+  if (!token && isProtectedRoute) {
+    return NextResponse.redirect(new URL(PUBLIC_ROUTES[0], request.url));
+  }
+
+  if (token && isDashboardRoute) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const isAdmin = payload.roles?.some(
+        (role: string) => role.toLowerCase() === 'admin',
+      );
+      if (!isAdmin)
+        return NextResponse.redirect(new URL(PUBLIC_ROUTES[0], request.url));
+    } catch (error) {
+      return NextResponse.redirect(new URL(PUBLIC_ROUTES[0], request.url));
+    }
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-   matcher: ['/auth/:path*'],
-} */
-
-import { NextResponse, type NextRequest } from 'next/server';
-
-const AUTH_PAGES            = ['/auth/sign-in', '/auth/sign-up'];
-const DEFAULT_AUTH_REDIRECT = '/auth/sign-in';
-const HOME_URL              = '/';
-
-export function middleware(request: NextRequest) {
-
-   const pathname = request.nextUrl.pathname;
-   const token    = request.cookies.get('auth_token')?.value;
-
-   if (pathname.startsWith('/auth/')) {
-      if (token) {
-         const url = new URL(HOME_URL, request.url);
-         return NextResponse.redirect(url);
-      }
-      if (!AUTH_PAGES.includes(pathname)) {
-         const url = new URL(DEFAULT_AUTH_REDIRECT, request.url);
-         return NextResponse.redirect(url);
-      }
-   }
-   return NextResponse.next();
-}
-
-export const config = {
-   matcher: ['/auth/sign-in', '/auth/sign-up'],
-}
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+};
